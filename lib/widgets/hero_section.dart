@@ -1,0 +1,302 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../constants/theme.dart';
+import 'shared_widgets.dart';
+
+class HeroSection extends StatefulWidget {
+  const HeroSection({super.key});
+
+  @override
+  State<HeroSection> createState() => _HeroSectionState();
+}
+
+class _HeroSectionState extends State<HeroSection>
+    with TickerProviderStateMixin {
+  late AnimationController _mainCtrl;
+  late AnimationController _pulseCtrl;
+  late Animation<double> _fadeAnim;
+  late Animation<Offset> _slideAnim;
+  late Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _mainCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+
+    _fadeAnim = CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _mainCtrl, curve: Curves.easeOutCubic));
+    _pulseAnim = Tween<double>(begin: 1.0, end: 0.4)
+        .animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
+
+    _mainCtrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _mainCtrl.dispose();
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final isMobile = w < 900;
+
+    return Container(
+      color: AppColors.navy,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 64 : 96,
+        horizontal: isMobile ? 20 : w * 0.08,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: FadeTransition(
+            opacity: _fadeAnim,
+            child: SlideTransition(
+              position: _slideAnim,
+              child: isMobile
+                  ? _buildMobile(context)
+                  : _buildDesktop(context),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktop(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: _buildText(context)),
+        const SizedBox(width: 60),
+        _buildAvatar(),
+      ],
+    );
+  }
+
+  Widget _buildMobile(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildAvatar(size: 160),
+        const SizedBox(height: 32),
+        _buildText(context),
+      ],
+    );
+  }
+
+  Widget _buildAvatar({double size = 240}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.gold.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.gold.withOpacity(0.2),
+          width: 2,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Replace this with Image.network('your-photo-url') or Image.asset('assets/images/photo.jpg')
+            Container(
+              width: size * 0.42,
+              height: size * 0.42,
+              decoration: BoxDecoration(
+                color: AppColors.gold.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  'YN',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: size * 0.16,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.gold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Add your photo here',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                color: Colors.white.withOpacity(0.3),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildText(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Available badge
+        _buildBadge(),
+        const SizedBox(height: 22),
+
+        // Name
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'Muhammad\n',
+                style: isMobile
+                    ? AppTextStyles.displayMobile
+                    : AppTextStyles.display,
+              ),
+              TextSpan(
+                text: 'Your Name',
+                style: (isMobile
+                    ? AppTextStyles.displayMobile
+                    : AppTextStyles.display)
+                    .copyWith(color: AppColors.gold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Role
+        Text(
+          'Flutter Developer  ·  Firebase  ·  Node.js',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: isMobile ? 14 : 18,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withOpacity(0.55),
+          ),
+        ),
+        const SizedBox(height: 22),
+
+        // Description
+        Text(
+          'I build fast, beautiful cross-platform mobile apps for\nstartups and businesses. 2 years of hands-on experience\ndelivering production Flutter apps.',
+          style: AppTextStyles.bodyWhite.copyWith(
+            fontSize: isMobile ? 14 : 16,
+          ),
+        ),
+        const SizedBox(height: 36),
+
+        // CTA buttons
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            PrimaryButton(
+              label: 'View My Work  ↓',
+              onTap: () {},
+              bg: AppColors.gold,
+              textColor: AppColors.navy,
+            ),
+            PrimaryButton(
+              label: 'Get in Touch',
+              onTap: () {},
+              outlined: true,
+            ),
+          ],
+        ),
+        const SizedBox(height: 44),
+
+        // Stats
+        Wrap(
+          spacing: 36,
+          runSpacing: 20,
+          children: [
+            _StatItem(value: '2+', label: 'Years Experience'),
+            _StatItem(value: '5+', label: 'Apps Built'),
+            _StatItem(value: '100%', label: 'Client Satisfaction'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.gold.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedBuilder(
+            animation: _pulseAnim,
+            builder: (_, __) => Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withOpacity(_pulseAnim.value),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Available for freelance projects',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gold,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String value;
+  final String label;
+
+  const _StatItem({required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = value.replaceAll('%', '').replaceAll('+', '');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(text: parts, style: AppTextStyles.statVal),
+              TextSpan(
+                text: value.contains('%') ? '%' : value.contains('+') ? '+' : '',
+                style: AppTextStyles.statVal.copyWith(color: AppColors.gold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: AppTextStyles.statLabel),
+      ],
+    );
+  }
+}

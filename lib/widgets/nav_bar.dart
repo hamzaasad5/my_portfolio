@@ -44,7 +44,7 @@ class _PortfolioNavBarState extends State<PortfolioNavBar> {
         children: [
           // Logo
           Text(
-            'YourName.',
+            'Hamza Asad',
             style: GoogleFonts.plusJakartaSans(
               fontSize: 18,
               fontWeight: FontWeight.w800,

@@ -59,19 +59,19 @@ class Experience {
 // ── DATA ────────────────────────────────────────────────────────────────────
 
 final List<Project> projects = [
-  Project(
+  const Project(
     title: 'KametiPro',
     subtitle: 'Committee Manager App',
     description:
-    'A digital committee (ROSCA/beesi) management app. Create committees, track member payments, assign rotation months, and export records. Built for the 70% of Pakistani households that run committees.',
+    'A digital committee (ROSCA/beesi) management app. Create committees, track member payments, assign rotation months,group chats with committee members and export records. Built for the 70% of Pakistani households that run committees.',
     bgColor: Color(0xFF0F2952),
     emoji: '💰',
     badge: 'Fintech',
     stack: ['Flutter', 'Firebase', 'Node.js', 'Firestore'],
     demoUrl: 'https://youtube.com/your-demo',
-    githubUrl: 'https://github.com/yourusername/kametipro',
+    githubUrl: 'https://github.com/hamzaasad5/committee_pay_app',
   ),
-  Project(
+  const Project(
     title: 'ShopEase',
     subtitle: 'E-commerce App',
     description:
@@ -83,19 +83,19 @@ final List<Project> projects = [
     demoUrl: 'https://youtube.com/your-demo',
     githubUrl: 'https://github.com/yourusername/shopease',
   ),
-  Project(
-    title: 'ChatFlow',
-    subtitle: 'Real-time Messaging',
+  const Project(
+    title: 'BOSS Online Food pickup app',
+    subtitle: 'Real-time Ordering Food',
     description:
-    'A WhatsApp-style real-time chat app with Firebase Realtime Database. Features push notifications, online status, image sharing, and group chats.',
+    'A dual-module food ordering app where users discover nearby restaurants (300m radius), scan tables, and order food directly - no waiters needed. Vendors manage their restaurants seamlessly.',
     bgColor: Color(0xFF1E3A5F),
-    emoji: '💬',
-    badge: 'Real-time',
-    stack: ['Flutter', 'Firebase RTDB', 'FCM', 'GetX'],
+    emoji: '🍔',
+    badge: 'Food ordering',
+    stack: ['Flutter', 'Firebase', 'FCM', 'Bloc'],
     demoUrl: 'https://youtube.com/your-demo',
-    githubUrl: 'https://github.com/yourusername/chatflow',
+    githubUrl: 'https://github.com/hamzaasad5/food_pickup_app',
   ),
-  Project(
+  const Project(
     title: 'SpendWise',
     subtitle: 'Expense Tracker',
     description:
@@ -107,7 +107,7 @@ final List<Project> projects = [
     demoUrl: 'https://youtube.com/your-demo',
     githubUrl: 'https://github.com/yourusername/spendwise',
   ),
-  Project(
+  const Project(
     title: 'DocBook',
     subtitle: 'Doctor Appointments',
     description:
@@ -115,11 +115,11 @@ final List<Project> projects = [
     bgColor: Color(0xFF1A3A2A),
     emoji: '🏥',
     badge: 'Healthcare',
-    stack: ['Flutter', 'Node.js', 'MongoDB', 'BLoC'],
+    stack: ['Flutter', 'Firebase', 'BLoC'],
     demoUrl: 'https://youtube.com/your-demo',
     githubUrl: 'https://github.com/yourusername/docbook',
   ),
-  Project(
+  const Project(
     title: 'RentEasy',
     subtitle: 'Property Manager',
     description:
@@ -134,7 +134,7 @@ final List<Project> projects = [
 ];
 
 final List<Skill> skills = [
-  Skill(
+  const Skill(
     name: 'Flutter & Dart',
     description:
     'Cross-platform apps for iOS & Android. Custom widgets, animations, responsive layouts.',
@@ -142,7 +142,7 @@ final List<Skill> skills = [
     iconBg: Color(0xFFE6F1FB),
     tags: ['Flutter 3.x', 'Dart', 'Widgets', 'Animations'],
   ),
-  Skill(
+  const Skill(
     name: 'Firebase',
     description:
     'Real-time databases, authentication, push notifications, cloud storage.',
@@ -150,15 +150,15 @@ final List<Skill> skills = [
     iconBg: Color(0xFFFAEEDA),
     tags: ['Firestore', 'Auth', 'FCM', 'Storage'],
   ),
-  Skill(
-    name: 'Node.js Backend',
+  const Skill(
+    name: 'API Integration',
     description:
-    'REST API development, middleware, authentication, third-party integrations.',
-    emoji: '⚙️',
+    'Seamlessly integrate REST APIs, Firebase, and third-party services into Flutter apps. Expert in HTTP requests, error handling, and state management.',
+    emoji: '🔗',
     iconBg: Color(0xFFEAF3DE),
-    tags: ['Express.js', 'REST API', 'JWT', 'MongoDB'],
+    tags: ['REST API', 'HTTP', 'Firebase', 'JSON'],
   ),
-  Skill(
+  const Skill(
     name: 'State Management',
     description:
     'Scalable app architecture using proven patterns for maintainable code.',
@@ -166,7 +166,7 @@ final List<Skill> skills = [
     iconBg: Color(0xFFEEEDFE),
     tags: ['Provider', 'BLoC', 'GetX', 'Riverpod'],
   ),
-  Skill(
+  const Skill(
     name: 'UI/UX Implementation',
     description:
     'Translating Figma designs into pixel-perfect Flutter UIs with smooth animations.',
@@ -174,7 +174,7 @@ final List<Skill> skills = [
     iconBg: Color(0xFFE1F5EE),
     tags: ['Figma', 'Custom UI', 'Material 3'],
   ),
-  Skill(
+  const Skill(
     name: 'App Publishing',
     description:
     'Full Play Store & App Store submission, signing, policies, and ASO.',
@@ -185,38 +185,39 @@ final List<Skill> skills = [
 ];
 
 final List<Experience> experiences = [
-  Experience(
-    date: '2023 – Present',
+  const Experience(
+    date: 'Feb 2024 – Present',
     role: 'Flutter Developer',
-    company: 'Freelance / Self-employed',
+    company: 'Techtronix Corp ltd islamabad',
     emoji: '💼',
     points: [
       'Built and published 5+ Flutter apps to the Google Play Store',
       'Developed full-stack apps with Firebase and Node.js REST APIs',
-      'Integrated payment gateways, push notifications, and real-time features',
+      'Integrated payment gateways,real time chats, push notifications,upload video complete module and real-time features',
       'Implemented BLoC, Provider, and GetX for scalable state management',
     ],
   ),
-  Experience(
-    date: '2022 – 2023',
-    role: 'Junior Flutter Developer',
-    company: 'Your Previous Company, Pakistan',
-    emoji: '🏢',
+  const Experience(
+    date: 'Nov 2023 – Feb 2024',
+    role: 'Flutter Intern',
+    company: 'CHI technologies NSTP, NUST, Pakistan',
+    emoji: '📱',
     points: [
-      'Contributed to 3 client-facing Flutter apps across fintech and e-commerce',
-      'Collaborated with design team to translate Figma screens to Flutter',
-      'Wrote unit and widget tests achieving 70%+ code coverage',
+      'Helped build 3 production-ready Flutter apps from design to deployment',
+      'Learned to convert Figma designs into responsive Flutter UIs',
+      'Understood mobile UI/UX best practices for fintech and e-commerce apps',
+      'Assisted in implementing custom widgets and reusable components',
+      'Participated in design reviews and implemented feedback from UI/UX team',
     ],
   ),
-  Experience(
-    date: '2020 – 2024',
-    role: 'Bachelor of Computer Science',
-    company: 'Your University, Pakistan',
+  const Experience(
+    date: '2019 – 2023',
+    role: 'Bachelor of Computer Science (BCS)',
+    company: 'Federal Urdu University of Arts, Science & Technology, Islamabad',
     emoji: '🎓',
     points: [
-      'Specialized in mobile application development and software engineering',
-      'Final year project: KametiPro — digital committee management system',
-      'GPA: 3.5 / 4.0',
+      'Specialized in mobile app development and software engineering principles',
+      'Final year project: "Find Nearby Mechanic" - A location-based app to connect users with nearby mechanics',
     ],
   ),
 ];

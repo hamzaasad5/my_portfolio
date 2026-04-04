@@ -161,14 +161,14 @@ class _HeroSectionState extends State<HeroSection>
         RichText(
           text: TextSpan(
             children: [
+              // TextSpan(
+              //   text: 'Muhammad\n',
+              //   style: isMobile
+              //       ? AppTextStyles.displayMobile
+              //       : AppTextStyles.display,
+              // ),
               TextSpan(
-                text: 'Muhammad\n',
-                style: isMobile
-                    ? AppTextStyles.displayMobile
-                    : AppTextStyles.display,
-              ),
-              TextSpan(
-                text: 'Your Name',
+                text: 'Hamza Asad',
                 style: (isMobile
                     ? AppTextStyles.displayMobile
                     : AppTextStyles.display)
@@ -181,7 +181,7 @@ class _HeroSectionState extends State<HeroSection>
 
         // Role
         Text(
-          'Flutter Developer  ·  Firebase  ·  Node.js',
+          'Flutter Developer  ·  Firebase  ·  UI/UX',
           style: GoogleFonts.plusJakartaSans(
             fontSize: isMobile ? 14 : 18,
             fontWeight: FontWeight.w500,

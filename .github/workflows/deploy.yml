@@ -28,7 +28,12 @@ jobs:
           channel: 'stable'
       
       - run: flutter pub get
-      - run: flutter build web --release --base-href "/my_portfolio/"
+      - run: flutter build web --release
+      
+      - name: Fix base href
+        run: |
+          cd build/web
+          sed -i 's|<base href="/">|<base href="/my_portfolio/">|g' index.html
       
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import 'shared_widgets.dart';
 
@@ -89,98 +90,98 @@ class _ContactSectionState extends State<ContactSection> {
         _ContactRow(
           emoji: '📧',
           label: 'EMAIL',
-          value: 'yourname@gmail.com',
+          value: 'hamzaasad2026@gmail.com',
           onTap: () {
-            // launchUrl(Uri.parse('mailto:yourname@gmail.com'));
+            launchUrl(Uri.parse('mailto:hamzaasad2026@gmail.com'));
           },
         ),
         const SizedBox(height: 12),
         _ContactRow(
           emoji: '💬',
           label: 'WHATSAPP',
-          value: '+92 300 1234567',
+          value: '+92 3189547155',
           onTap: () {
-            // launchUrl(Uri.parse('https://wa.me/923001234567'));
+            launchUrl(Uri.parse('https://wa.me/923189547155'));
           },
         ),
         const SizedBox(height: 12),
         _ContactRow(
           emoji: '💼',
           label: 'LINKEDIN',
-          value: 'linkedin.com/in/yourname',
+          value: 'https://www.linkedin.com/in/hamzaasad-flutter-developer/',
           onTap: () {
-            // launchUrl(Uri.parse('https://linkedin.com/in/yourname'));
+            launchUrl(Uri.parse('https://linkedin.com/in/yourname'));
           },
         ),
         const SizedBox(height: 12),
         _ContactRow(
           emoji: '🐙',
           label: 'GITHUB',
-          value: 'github.com/yourusername',
+          value: 'https://github.com/hamzaasad5',
           onTap: () {
-            // launchUrl(Uri.parse('https://github.com/yourusername'));
+            launchUrl(Uri.parse('https://github.com/yourusername'));
           },
         ),
         const SizedBox(height: 16),
         // Rate card
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.gold.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.gold.withOpacity(0.2)),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'STARTING RATE',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        color: Colors.white.withOpacity(0.45),
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '\$15',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' / hour',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.4),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Fixed-price projects also available',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.35),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Container(
+        //   padding: const EdgeInsets.all(16),
+        //   decoration: BoxDecoration(
+        //     color: AppColors.gold.withOpacity(0.1),
+        //     borderRadius: BorderRadius.circular(12),
+        //     border: Border.all(color: AppColors.gold.withOpacity(0.2)),
+        //   ),
+        //   child: Row(
+        //     children: [
+        //       Expanded(
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           children: [
+        //             Text(
+        //               'STARTING RATE',
+        //               style: GoogleFonts.plusJakartaSans(
+        //                 fontSize: 11,
+        //                 color: Colors.white.withOpacity(0.45),
+        //                 fontWeight: FontWeight.w700,
+        //                 letterSpacing: 0.8,
+        //               ),
+        //             ),
+        //             const SizedBox(height: 6),
+        //             RichText(
+        //               text: TextSpan(
+        //                 children: [
+        //                   TextSpan(
+        //                     text: '\$15',
+        //                     style: GoogleFonts.plusJakartaSans(
+        //                       fontSize: 28,
+        //                       fontWeight: FontWeight.w800,
+        //                       color: Colors.white,
+        //                     ),
+        //                   ),
+        //                   TextSpan(
+        //                     text: ' / hour',
+        //                     style: GoogleFonts.plusJakartaSans(
+        //                       fontSize: 14,
+        //                       color: Colors.white.withOpacity(0.4),
+        //                     ),
+        //                   ),
+        //                 ],
+        //               ),
+        //             ),
+        //             const SizedBox(height: 4),
+        //             Text(
+        //               'Fixed-price projects also available',
+        //               style: GoogleFonts.plusJakartaSans(
+        //                 fontSize: 12,
+        //                 color: Colors.white.withOpacity(0.35),
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }
@@ -226,11 +227,11 @@ class _ContactSectionState extends State<ContactSection> {
       key: _formKey,
       child: Column(
         children: [
-          _FormField(controller: _nameCtrl, hint: 'Your Name', required: true),
+          _FormField(controller: _nameCtrl, hint: 'Enter Name', required: true),
           const SizedBox(height: 14),
           _FormField(
             controller: _emailCtrl,
-            hint: 'Your Email',
+            hint: 'Enter your Email',
             required: true,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import 'shared_widgets.dart';
 
@@ -48,10 +49,171 @@ class _HeroSectionState extends State<HeroSection>
     super.dispose();
   }
 
+  // Navigation methods
+  void _scrollToProjects() {
+    // Find the Projects section and scroll to it
+    final context = _projectsKey.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _showContactDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.navyMid,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.email, size: 50, color: AppColors.gold),
+                const SizedBox(height: 16),
+                Text(
+                  'Get in Touch',
+                  style: AppTextStyles.btnLabelLight.copyWith(color: AppColors.gold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Let\'s work together! Reach me at:',
+                  style: AppTextStyles.bodyWhite,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.navy,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.gold.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.email, color: AppColors.gold, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'hamzaasad2026@gmail.com', // Replace with your email
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Email copied!')),
+                          );
+                        },
+                        child: Icon(Icons.copy, color: AppColors.gold, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildContactButton(
+                        icon: Icons.call,
+                        label: 'Call',
+                        onTap: () => _launchURL('tel:+923319584367'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildContactButton(
+                        icon: Icons.message,
+                        label: 'WhatsApp',
+                        onTap: () => _launchURL('https://wa.me/+923319584367'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: AppColors.gold.withOpacity(0.5)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Close', style: TextStyle(color: AppColors.gold)),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildContactButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.gold.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.gold.withOpacity(0.2)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.gold, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.gold,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not launch $url')),
+        );
+      }
+    }
+  }
+
+  // Key for projects section scrolling
+  final GlobalKey _projectsKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final h = MediaQuery.of(context).size.height;
     final isMobile = w < 900;
     final isTablet = w >= 600 && w < 900;
 
@@ -137,7 +299,7 @@ class _HeroSectionState extends State<HeroSection>
           child: Image.asset(
             'assets/images/my_profile_image.jpeg',
             fit: BoxFit.cover,
-            alignment: Alignment.topCenter, // 👈 Shows the top part (head)
+            alignment: Alignment.topCenter,
             width: size,
             height: size,
             errorBuilder: (context, error, stackTrace) {
@@ -163,20 +325,12 @@ class _HeroSectionState extends State<HeroSection>
     return Column(
       crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
-        // Available badge
         _buildBadge(isMobile: isMobile),
         const SizedBox(height: 22),
 
-        // Name
         RichText(
           text: TextSpan(
             children: [
-              // TextSpan(
-              //   text: 'Muhammad\n',
-              //   style: isMobile
-              //       ? AppTextStyles.displayMobile
-              //       : AppTextStyles.display,
-              // ),
               TextSpan(
                 text: 'Hamza Asad',
                 style: (isMobile
@@ -189,7 +343,6 @@ class _HeroSectionState extends State<HeroSection>
         ),
         const SizedBox(height: 10),
 
-        // Role
         Text(
           'Flutter Developer  ·  Firebase  ·  UI/UX',
           style: GoogleFonts.plusJakartaSans(
@@ -200,7 +353,6 @@ class _HeroSectionState extends State<HeroSection>
         ),
         const SizedBox(height: 22),
 
-        // Description
         Text(
           isMobile
               ? 'I build fast, beautiful cross-platform mobile apps for startups and businesses. 2+ years of hands-on experience delivering production Flutter apps.'
@@ -212,7 +364,7 @@ class _HeroSectionState extends State<HeroSection>
         ),
         const SizedBox(height: 36),
 
-        // CTA buttons
+        // CTA buttons with actions
         Wrap(
           alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 12,
@@ -220,20 +372,19 @@ class _HeroSectionState extends State<HeroSection>
           children: [
             PrimaryButton(
               label: 'View My Work  ↓',
-              onTap: () {},
+              onTap: _scrollToProjects, // Scroll to projects section
               bg: AppColors.gold,
               textColor: AppColors.navy,
             ),
             PrimaryButton(
               label: 'Get in Touch',
-              onTap: () {},
+              onTap: _showContactDialog, // Show contact dialog
               outlined: true,
             ),
           ],
         ),
         const SizedBox(height: 44),
 
-        // Stats
         Wrap(
           alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 36,

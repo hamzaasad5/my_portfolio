@@ -51,14 +51,16 @@ class _HeroSectionState extends State<HeroSection>
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
     final isMobile = w < 900;
+    final isTablet = w >= 600 && w < 900;
 
     return Container(
       color: AppColors.navy,
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 64 : 96,
-        horizontal: isMobile ? 20 : w * 0.08,
+        vertical: isMobile ? 40 : 96,
+        horizontal: isMobile ? 20 : (isTablet ? 40 : w * 0.08),
       ),
       child: Center(
         child: ConstrainedBox(
@@ -83,78 +85,86 @@ class _HeroSectionState extends State<HeroSection>
       children: [
         Expanded(child: _buildText(context)),
         const SizedBox(width: 60),
-        _buildAvatar(),
+        _buildAvatar(size: 240),
       ],
     );
   }
 
   Widget _buildMobile(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildAvatar(size: 160),
-        const SizedBox(height: 32),
-        _buildText(context),
-      ],
+    final w = MediaQuery.of(context).size.width;
+    final avatarSize = w < 400 ? 140.0 : 180.0;
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildAvatar(size: avatarSize),
+          const SizedBox(height: 32),
+          _buildText(context, isMobile: true),
+        ],
+      ),
     );
   }
 
   Widget _buildAvatar({double size = 240}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColors.gold.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.gold.withOpacity(0.2),
-          width: 2,
-        ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Replace this with Image.network('your-photo-url') or Image.asset('assets/images/photo.jpg')
-            Container(
-              width: size * 0.42,
-              height: size * 0.42,
-              decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  'YN',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: size * 0.16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.gold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Add your photo here',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
-                color: Colors.white.withOpacity(0.3),
-              ),
+    return Center(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.gold.withOpacity(0.3),
+              AppColors.gold.withOpacity(0.1),
+            ],
+          ),
+          border: Border.all(
+            color: AppColors.gold.withOpacity(0.4),
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.gold.withOpacity(0.2),
+              blurRadius: 20,
+              spreadRadius: 5,
             ),
           ],
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/my_profile_image.jpeg',
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter, // 👈 Shows the top part (head)
+            width: size,
+            height: size,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: AppColors.gold.withOpacity(0.2),
+                child: const Icon(
+                  Icons.person,
+                  size: 80,
+                  color: Colors.white54,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildText(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 900;
+  Widget _buildText(BuildContext context, {bool isMobile = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isVerySmall = screenWidth < 400;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         // Available badge
-        _buildBadge(),
+        _buildBadge(isMobile: isMobile),
         const SizedBox(height: 22),
 
         // Name
@@ -183,7 +193,7 @@ class _HeroSectionState extends State<HeroSection>
         Text(
           'Flutter Developer  ·  Firebase  ·  UI/UX',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: isMobile ? 14 : 18,
+            fontSize: isMobile ? (isVerySmall ? 12 : 14) : 18,
             fontWeight: FontWeight.w500,
             color: Colors.white.withOpacity(0.55),
           ),
@@ -192,7 +202,10 @@ class _HeroSectionState extends State<HeroSection>
 
         // Description
         Text(
-          'I build fast, beautiful cross-platform mobile apps for\nstartups and businesses. 2 years of hands-on experience\ndelivering production Flutter apps.',
+          isMobile
+              ? 'I build fast, beautiful cross-platform mobile apps for startups and businesses. 2+ years of hands-on experience delivering production Flutter apps.'
+              : 'I build fast, beautiful cross-platform mobile apps for\nstartups and businesses. 2 years of hands-on experience\ndelivering production Flutter apps.',
+          textAlign: isMobile ? TextAlign.center : TextAlign.left,
           style: AppTextStyles.bodyWhite.copyWith(
             fontSize: isMobile ? 14 : 16,
           ),
@@ -201,6 +214,7 @@ class _HeroSectionState extends State<HeroSection>
 
         // CTA buttons
         Wrap(
+          alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 12,
           runSpacing: 12,
           children: [
@@ -221,19 +235,20 @@ class _HeroSectionState extends State<HeroSection>
 
         // Stats
         Wrap(
+          alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 36,
           runSpacing: 20,
           children: [
-            _StatItem(value: '2+', label: 'Years Experience'),
-            _StatItem(value: '5+', label: 'Apps Built'),
-            _StatItem(value: '100%', label: 'Client Satisfaction'),
+            _StatItem(value: '2+', label: 'Years Experience', isMobile: isMobile),
+            _StatItem(value: '5+', label: 'Apps Built', isMobile: isMobile),
+            _StatItem(value: '100%', label: 'Client Satisfaction', isMobile: isMobile),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildBadge() {
+  Widget _buildBadge({required bool isMobile}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
@@ -274,28 +289,47 @@ class _HeroSectionState extends State<HeroSection>
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
+  final bool isMobile;
 
-  const _StatItem({required this.value, required this.label});
+  const _StatItem({
+    required this.value,
+    required this.label,
+    this.isMobile = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final parts = value.replaceAll('%', '').replaceAll('+', '');
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         RichText(
           text: TextSpan(
             children: [
-              TextSpan(text: parts, style: AppTextStyles.statVal),
+              TextSpan(
+                  text: parts,
+                  style: AppTextStyles.statVal.copyWith(
+                    fontSize: isMobile ? 24 : 32,
+                  )
+              ),
               TextSpan(
                 text: value.contains('%') ? '%' : value.contains('+') ? '+' : '',
-                style: AppTextStyles.statVal.copyWith(color: AppColors.gold),
+                style: AppTextStyles.statVal.copyWith(
+                  color: AppColors.gold,
+                  fontSize: isMobile ? 24 : 32,
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: AppTextStyles.statLabel),
+        Text(
+          label,
+          style: AppTextStyles.statLabel.copyWith(
+            fontSize: isMobile ? 11 : 14,
+          ),
+          textAlign: isMobile ? TextAlign.center : TextAlign.left,
+        ),
       ],
     );
   }

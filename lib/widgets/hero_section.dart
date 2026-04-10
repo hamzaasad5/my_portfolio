@@ -363,7 +363,7 @@ class _HeroSectionState extends State<HeroSection>
         Text(
           isMobile
               ? 'I build fast, beautiful cross-platform mobile apps for startups and businesses. 2+ years of hands-on experience delivering production Flutter apps.'
-              : 'I build fast, beautiful cross-platform mobile apps for\nstartups and businesses. 2 years of hands-on experience\ndelivering production Flutter apps.',
+              : 'I build fast, beautiful cross-platform mobile apps for\nstartups and businesses. 2+ years of hands-on experience\ndelivering production Flutter apps.',
           textAlign: isMobile ? TextAlign.center : TextAlign.left,
           style: AppTextStyles.bodyWhite.copyWith(
             fontSize: isMobile ? 14 : 16,

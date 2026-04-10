@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import 'shared_widgets.dart';
 
 class HeroSection extends StatefulWidget {
-  const HeroSection({super.key});
+  final VoidCallback? onViewMyWorkTap;
+  final VoidCallback? onGetInTouchTap;
+  final ScrollController? scrollController; // Add scroll controller
+
+  const HeroSection({super.key,
+    this.onViewMyWorkTap,
+    this.onGetInTouchTap,
+    this.scrollController});
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
@@ -49,119 +57,122 @@ class _HeroSectionState extends State<HeroSection>
     super.dispose();
   }
 
-  // Navigation methods
   void _scrollToProjects() {
-    // Find the Projects section and scroll to it
-    final context = _projectsKey.currentContext;
-    if (context != null) {
-      Scrollable.ensureVisible(
-        context,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
-    }
+    widget.onViewMyWorkTap?.call();
   }
 
-  void _showContactDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.navyMid,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.gold.withOpacity(0.3)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.email, size: 50, color: AppColors.gold),
-                const SizedBox(height: 16),
-                Text(
-                  'Get in Touch',
-                  style: AppTextStyles.btnLabelLight.copyWith(color: AppColors.gold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Let\'s work together! Reach me at:',
-                  style: AppTextStyles.bodyWhite,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.navy,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.gold.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.email, color: AppColors.gold, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'hamzaasad2026@gmail.com', // Replace with your email
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Email copied!')),
-                          );
-                        },
-                        child: Icon(Icons.copy, color: AppColors.gold, size: 20),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildContactButton(
-                        icon: Icons.call,
-                        label: 'Call',
-                        onTap: () => _launchURL('tel:+923319584367'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildContactButton(
-                        icon: Icons.message,
-                        label: 'WhatsApp',
-                        onTap: () => _launchURL('https://wa.me/+923319584367'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AppColors.gold.withOpacity(0.5)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Close', style: TextStyle(color: AppColors.gold)),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void _scrollToContacDetails() {
+    widget.onGetInTouchTap?.call();
   }
+
+
+  // void _showContactDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         backgroundColor: AppColors.navyMid,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //         ),
+  //         child: Container(
+  //           padding: const EdgeInsets.all(24),
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(20),
+  //             border: Border.all(color: AppColors.gold.withOpacity(0.3)),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             children: [
+  //               Icon(Icons.email, size: 50, color: AppColors.gold),
+  //               const SizedBox(height: 16),
+  //               Text(
+  //                 'Get in Touch',
+  //                 style: AppTextStyles.btnLabelLight.copyWith(color: AppColors.gold),
+  //               ),
+  //               const SizedBox(height: 8),
+  //               Text(
+  //                 'Let\'s work together! Reach me at:',
+  //                 style: AppTextStyles.bodyWhite,
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //               const SizedBox(height: 20),
+  //               Container(
+  //                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //                 decoration: BoxDecoration(
+  //                   color: AppColors.navy,
+  //                   borderRadius: BorderRadius.circular(12),
+  //                   border: Border.all(color: AppColors.gold.withOpacity(0.2)),
+  //                 ),
+  //                 child: Row(
+  //                   children: [
+  //                     Icon(Icons.email, color: AppColors.gold, size: 20),
+  //                     const SizedBox(width: 12),
+  //                     Expanded(
+  //                       child: Text(
+  //                         'hamzaasad2026@gmail.com',
+  //                         style: GoogleFonts.plusJakartaSans(
+  //                           color: Colors.white,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     InkWell(
+  //                       onTap: () {
+  //                         Clipboard.setData(
+  //                           const ClipboardData(text: 'hamzaasad2026@gmail.com'),
+  //                         ).then((_) {
+  //                           ScaffoldMessenger.of(context).showSnackBar(
+  //                             const SnackBar(
+  //                               content: Text('Email copied to clipboard!'),
+  //                               duration: Duration(seconds: 2),
+  //                             ),
+  //                           );
+  //                         });
+  //                       },
+  //                       child: Icon(Icons.copy, color: AppColors.gold, size: 20),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 16),
+  //               Row(
+  //                 children: [
+  //                   Expanded(
+  //                     child: _buildContactButton(
+  //                       icon: Icons.call,
+  //                       label: 'Call',
+  //                       onTap: () => _launchURL('tel:+923189547155'),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 12),
+  //                   Expanded(
+  //                     child: _buildContactButton(
+  //                       icon: Icons.message,
+  //                       label: 'WhatsApp',
+  //                       onTap: () => _launchURL('https://wa.me/+923189547155'),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 12),
+  //               OutlinedButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 style: OutlinedButton.styleFrom(
+  //                   side: BorderSide(color: AppColors.gold.withOpacity(0.5)),
+  //                   shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 child: Text('Close', style: TextStyle(color: AppColors.gold)),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildContactButton({
     required IconData icon,
@@ -208,9 +219,6 @@ class _HeroSectionState extends State<HeroSection>
     }
   }
 
-  // Key for projects section scrolling
-  final GlobalKey _projectsKey = GlobalKey();
-
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -256,15 +264,14 @@ class _HeroSectionState extends State<HeroSection>
     final w = MediaQuery.of(context).size.width;
     final avatarSize = w < 400 ? 140.0 : 180.0;
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildAvatar(size: avatarSize),
-          const SizedBox(height: 32),
-          _buildText(context, isMobile: true),
-        ],
-      ),
+    // Don't wrap with SingleChildScrollView here - let the parent handle scrolling
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _buildAvatar(size: avatarSize),
+        const SizedBox(height: 32),
+        _buildText(context, isMobile: true),
+      ],
     );
   }
 
@@ -364,7 +371,6 @@ class _HeroSectionState extends State<HeroSection>
         ),
         const SizedBox(height: 36),
 
-        // CTA buttons with actions
         Wrap(
           alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
           spacing: 12,
@@ -372,13 +378,13 @@ class _HeroSectionState extends State<HeroSection>
           children: [
             PrimaryButton(
               label: 'View My Work  ↓',
-              onTap: _scrollToProjects, // Scroll to projects section
+              onTap: _scrollToProjects,
               bg: AppColors.gold,
               textColor: AppColors.navy,
             ),
             PrimaryButton(
               label: 'Get in Touch',
-              onTap: _showContactDialog, // Show contact dialog
+              onTap: _scrollToContacDetails,
               outlined: true,
             ),
           ],

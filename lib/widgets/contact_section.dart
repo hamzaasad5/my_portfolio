@@ -12,39 +12,54 @@ class ContactSection extends StatefulWidget {
 }
 
 class _ContactSectionState extends State<ContactSection> {
-  final _nameCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-  final _subjectCtrl = TextEditingController();
-  final _messageCtrl = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  bool _submitted = false;
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _subjectCtrl.dispose();
-    _messageCtrl.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _submitted = true);
-      // TODO: integrate with email service (EmailJS, Formspree, etc.)
+  Future<void> _launch(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+    final w        = MediaQuery.of(context).size.width;
     final isMobile = w < 768;
+
+    final cards = [
+      const _CardData(
+        icon:    Icons.email_outlined,
+        label:   'Email',
+        // detail:  'hamzaasad2026@gmail.com',
+        caption: 'Tap to send an email',
+        url:     'mailto:hamzaasad2026@gmail.com',
+      ),
+      const _CardData(
+        icon:    Icons.whatshot,
+        label:   'WhatsApp',
+        // detail:  'W',
+        caption: 'Tap to open WhatsApp',
+        url:     'https://wa.me/923189547155',
+      ),
+      const _CardData(
+        icon:    Icons.work_outline_rounded,
+        label:   'LinkedIn',
+        // detail:  'Linkedin account',
+        caption: 'View profile',
+        url:     'https://www.linkedin.com/in/hamzaasad-flutter-developer/',
+      ),
+      const _CardData(
+        icon:    Icons.code_rounded,
+        label:   'GitHub',
+        // detail:  'Github account',
+        caption: 'View repositories',
+        url:     'https://github.com/hamzaasad5',
+      ),
+    ];
 
     return Container(
       color: AppColors.navy,
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 64 : AppSpacing.sectionPad,
+        vertical:   isMobile ? 64 : AppSpacing.sectionPad,
         horizontal: isMobile ? 20 : w * 0.08,
       ),
       child: Center(
@@ -54,29 +69,22 @@ class _ContactSectionState extends State<ContactSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SectionHeader(
-                label: "Let's work together",
-                title: 'Get In Touch',
-                subtitle:
-                'Available for Flutter freelance projects. I respond within 24 hours.',
-                darkBg: true,
+                label:    "Let's work together",
+                title:    'Get In Touch',
+                subtitle: 'Available for Flutter freelance projects. I respond within 24 hours.',
+                darkBg:   true,
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 16),
+              _buildAvailabilityBadge(),
+              const SizedBox(height: 40),
+
+              // Grid: 2 columns on desktop/tablet, 1 on small mobile
               isMobile
-                  ? Column(
-                children: [
-                  _buildContactInfo(isMobile),
-                  const SizedBox(height: 32),
-                  _buildForm(),
-                ],
-              )
-                  : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: _buildContactInfo(isMobile)),
-                  const SizedBox(width: 48),
-                  Expanded(child: _buildForm()),
-                ],
-              ),
+                  ? _buildMobileGrid(cards)
+                  : _buildDesktopGrid(cards),
+
+              const SizedBox(height: 40),
+              _buildResponseNote(),
             ],
           ),
         ),
@@ -84,178 +92,125 @@ class _ContactSectionState extends State<ContactSection> {
     );
   }
 
-  Widget _buildContactInfo(bool isMobile) {
+  Widget _buildMobileGrid(List<_CardData> cards) {
+    final w         = MediaQuery.of(context).size.width;
+    final twoColumn = w >= 480;
+
+    if (twoColumn) {
+      return Column(
+        children: [
+          for (int i = 0; i < cards.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                children: [
+                  Expanded(child: _ContactCard(data: cards[i],    onTap: () => _launch(cards[i].url))),
+                  const SizedBox(width: 14),
+                  Expanded(child: _ContactCard(data: cards[i + 1], onTap: () => _launch(cards[i + 1].url))),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
+
+    return Column(
+      children: cards
+          .map((c) => Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: _ContactCard(data: c, onTap: () => _launch(c.url)),
+      ))
+          .toList(),
+    );
+  }
+
+  Widget _buildDesktopGrid(List<_CardData> cards) {
     return Column(
       children: [
-        _ContactRow(
-          emoji: '📧',
-          label: 'EMAIL',
-          value: 'hamzaasad2026@gmail.com',
-          onTap: () {
-            launchUrl(Uri.parse('mailto:hamzaasad2026@gmail.com'));
-          },
-        ),
-        const SizedBox(height: 12),
-        _ContactRow(
-          emoji: '💬',
-          label: 'WHATSAPP',
-          value: '+92 3189547155',
-          onTap: () {
-            launchUrl(Uri.parse('https://wa.me/923189547155'));
-          },
-        ),
-        const SizedBox(height: 12),
-        _ContactRow(
-          emoji: '💼',
-          label: 'LINKEDIN',
-          value: 'https://www.linkedin.com/in/hamzaasad-flutter-developer/',
-          onTap: () {
-            launchUrl(Uri.parse('https://linkedin.com/in/yourname'));
-          },
-        ),
-        const SizedBox(height: 12),
-        _ContactRow(
-          emoji: '🐙',
-          label: 'GITHUB',
-          value: 'https://github.com/hamzaasad5',
-          onTap: () {
-            launchUrl(Uri.parse('https://github.com/yourusername'));
-          },
-        ),
-        const SizedBox(height: 16),
-        // Rate card
-        // Container(
-        //   padding: const EdgeInsets.all(16),
-        //   decoration: BoxDecoration(
-        //     color: AppColors.gold.withOpacity(0.1),
-        //     borderRadius: BorderRadius.circular(12),
-        //     border: Border.all(color: AppColors.gold.withOpacity(0.2)),
-        //   ),
-        //   child: Row(
-        //     children: [
-        //       Expanded(
-        //         child: Column(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           children: [
-        //             Text(
-        //               'STARTING RATE',
-        //               style: GoogleFonts.plusJakartaSans(
-        //                 fontSize: 11,
-        //                 color: Colors.white.withOpacity(0.45),
-        //                 fontWeight: FontWeight.w700,
-        //                 letterSpacing: 0.8,
-        //               ),
-        //             ),
-        //             const SizedBox(height: 6),
-        //             RichText(
-        //               text: TextSpan(
-        //                 children: [
-        //                   TextSpan(
-        //                     text: '\$15',
-        //                     style: GoogleFonts.plusJakartaSans(
-        //                       fontSize: 28,
-        //                       fontWeight: FontWeight.w800,
-        //                       color: Colors.white,
-        //                     ),
-        //                   ),
-        //                   TextSpan(
-        //                     text: ' / hour',
-        //                     style: GoogleFonts.plusJakartaSans(
-        //                       fontSize: 14,
-        //                       color: Colors.white.withOpacity(0.4),
-        //                     ),
-        //                   ),
-        //                 ],
-        //               ),
-        //             ),
-        //             const SizedBox(height: 4),
-        //             Text(
-        //               'Fixed-price projects also available',
-        //               style: GoogleFonts.plusJakartaSans(
-        //                 fontSize: 12,
-        //                 color: Colors.white.withOpacity(0.35),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
+        for (int i = 0; i < cards.length; i += 2)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                Expanded(child: _ContactCard(data: cards[i],     onTap: () => _launch(cards[i].url))),
+                const SizedBox(width: 16),
+                Expanded(child: _ContactCard(data: cards[i + 1], onTap: () => _launch(cards[i + 1].url))),
+              ],
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildForm() {
-    if (_submitted) {
-      return Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('✅', style: TextStyle(fontSize: 48)),
-              const SizedBox(height: 16),
-              Text(
-                'Message sent!',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "I'll get back to you within 24 hours.",
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.5),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Form(
-      key: _formKey,
-      child: Column(
+  Widget _buildAvailabilityBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color:        AppColors.gold.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border:       Border.all(color: AppColors.gold.withOpacity(0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _FormField(controller: _nameCtrl, hint: 'Enter Name', required: true),
-          const SizedBox(height: 14),
-          _FormField(
-            controller: _emailCtrl,
-            hint: 'Enter your Email',
-            required: true,
-            keyboardType: TextInputType.emailAddress,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'Please enter your email';
-              if (!v.contains('@')) return 'Please enter a valid email';
-              return null;
-            },
+          Container(
+            width: 8, height: 8,
+            decoration: BoxDecoration(
+              shape:     BoxShape.circle,
+              color:     AppColors.gold,
+              boxShadow: [
+                BoxShadow(
+                  color:      AppColors.gold.withOpacity(0.5),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          _FormField(
-            controller: _subjectCtrl,
-            hint: 'Project Type (e.g. Flutter app, UI redesign)',
+          const SizedBox(width: 10),
+          Text(
+            'Available for new projects',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize:   13,
+              fontWeight: FontWeight.w600,
+              color:      AppColors.gold,
+            ),
           ),
-          const SizedBox(height: 14),
-          _FormField(
-            controller: _messageCtrl,
-            hint: 'Tell me about your project...',
-            required: true,
-            maxLines: 5,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResponseNote() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color:        Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(14),
+        border:       Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule_rounded,
+            color: Colors.white.withOpacity(0.4),
+            size:  20,
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: _SubmitButton(onTap: _submit),
+          const SizedBox(width: 12),
+          Text(
+            'Average response time · ',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color:    Colors.white.withOpacity(0.4),
+            ),
+          ),
+          Text(
+            'Within 24 hours',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize:   13,
+              fontWeight: FontWeight.w700,
+              color:      Colors.white.withOpacity(0.75),
+            ),
           ),
         ],
       ),
@@ -263,190 +218,139 @@ class _ContactSectionState extends State<ContactSection> {
   }
 }
 
-class _ContactRow extends StatefulWidget {
-  final String emoji;
-  final String label;
-  final String value;
-  final VoidCallback onTap;
+// ── Data model ───────────────────────────────────────────────────────
 
-  const _ContactRow({
-    required this.emoji,
+class _CardData {
+  final IconData icon;
+  final String   label;
+  // final String   detail;
+  final String   caption;
+  final String   url;
+
+  const _CardData({
+    required this.icon,
     required this.label,
-    required this.value,
-    required this.onTap,
+    // required this.detail,
+    required this.caption,
+    required this.url,
   });
-
-  @override
-  State<_ContactRow> createState() => _ContactRowState();
 }
 
-class _ContactRowState extends State<_ContactRow> {
+// ── Card widget ──────────────────────────────────────────────────────
+
+class _ContactCard extends StatefulWidget {
+  final _CardData    data;
+  final VoidCallback onTap;
+
+  const _ContactCard({required this.data, required this.onTap});
+
+  @override
+  State<_ContactCard> createState() => _ContactCardState();
+}
+
+class _ContactCardState extends State<_ContactCard> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
+    final d = widget.data;
+
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor:  SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.all(14),
+          duration: const Duration(milliseconds: 180),
+          padding:  const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(_hovered ? 0.1 : 0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.emoji,
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
+            color: Colors.white.withOpacity(_hovered ? 0.09 : 0.04),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _hovered
+                  ? AppColors.gold.withOpacity(0.4)
+                  : Colors.white.withOpacity(0.08),
+              width: 1.2,
+            ),
+            boxShadow: _hovered
+                ? [
+              BoxShadow(
+                color:      AppColors.gold.withOpacity(0.08),
+                blurRadius: 20,
+                spreadRadius: 2,
               ),
-              const SizedBox(width: 14),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ]
+                : [],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top row: icon + arrow
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.label,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 10,
-                      color: Colors.white.withOpacity(0.4),
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 48, height: 48,
+                    decoration: BoxDecoration(
+                      color:        AppColors.gold
+                          .withOpacity(_hovered ? 0.22 : 0.12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
+                    child: Icon(d.icon, color: AppColors.gold, size: 24),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.value,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 30, height: 30,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(_hovered ? 0.08 : 0.04),
+                    ),
+                    child: Icon(
+                      Icons.arrow_outward_rounded,
+                      size:  15,
+                      color: Colors.white.withOpacity(_hovered ? 0.7 : 0.25),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+              const SizedBox(height: 16),
 
-class _FormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-  final bool required;
-  final int maxLines;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-
-  const _FormField({
-    required this.controller,
-    required this.hint,
-    this.required = false,
-    this.maxLines = 1,
-    this.keyboardType,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      style: GoogleFonts.plusJakartaSans(
-        fontSize: 14,
-        color: Colors.white,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 14,
-          color: Colors.white.withOpacity(0.3),
-        ),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.12)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.12)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5),
-        ),
-      ),
-      validator: validator ??
-          (required
-              ? (v) => (v == null || v.isEmpty) ? 'This field is required' : null
-              : null),
-    );
-  }
-}
-
-class _SubmitButton extends StatefulWidget {
-  final VoidCallback onTap;
-  const _SubmitButton({required this.onTap});
-
-  @override
-  State<_SubmitButton> createState() => _SubmitButtonState();
-}
-
-class _SubmitButtonState extends State<_SubmitButton> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: AppColors.gold.withOpacity(_hovered ? 0.88 : 1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(
-              'Send Message  →',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColors.navy,
+              // Label
+              Text(
+                d.label.toUpperCase(),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize:      10,
+                  color:         Colors.white.withOpacity(0.4),
+                  fontWeight:    FontWeight.w700,
+                  letterSpacing: 1.0,
+                ),
               ),
-            ),
+              const SizedBox(height: 5),
+
+              // Detail
+              // Text(
+              //   d.detail,
+              //   style: GoogleFonts.plusJakartaSans(
+              //     fontSize:   14,
+              //     color:      Colors.white,
+              //     fontWeight: FontWeight.w600,
+              //   ),
+              //   maxLines:  1,
+              //   overflow:  TextOverflow.ellipsis,
+              // ),
+              // const SizedBox(height: 4),
+
+              // Caption
+              Text(
+                d.caption,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  color:    Colors.white.withOpacity(0.3),
+                ),
+              ),
+            ],
           ),
         ),
       ),

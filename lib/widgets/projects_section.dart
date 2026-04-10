@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import '../models/data.dart';
 import 'shared_widgets.dart';
@@ -206,8 +207,7 @@ class _ProjLinkState extends State<_ProjLink> {
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: () {
-          // Launch URL — add url_launcher call here
-          // launchUrl(Uri.parse(widget.url));
+          launchUrl(Uri.parse(widget.url));
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),

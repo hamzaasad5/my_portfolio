@@ -26,52 +26,61 @@ class _HomePageState extends State<HomePage> {
     _scrollCtrl.dispose();
     super.dispose();
   }
-
+  void _scrollToProjects() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _sectionKeys[1].currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+  void _scrollToContactDetails() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _sectionKeys[3].currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // ── Sticky Nav ──────────────────────────────────────────────────
           PortfolioNavBar(
             scrollController: _scrollCtrl,
             sectionKeys: _sectionKeys,
           ),
-
-          // ── Scrollable content ──────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollCtrl,
               child: Column(
                 children: [
-                  // Hero — no key (it's above the nav scroll target)
-                  const HeroSection(),
-
-                  // Skills
+                  HeroSection(onViewMyWorkTap: _scrollToProjects,onGetInTouchTap:  _scrollToContactDetails,),
                   KeyedSubtree(
                     key: _sectionKeys[0],
                     child: const SkillsSection(),
                   ),
-
-                  // Projects
                   KeyedSubtree(
                     key: _sectionKeys[1],
                     child: const ProjectsSection(),
                   ),
-
-                  // Experience
                   KeyedSubtree(
                     key: _sectionKeys[2],
                     child: const ExperienceSection(),
                   ),
-
-                  // Contact
                   KeyedSubtree(
                     key: _sectionKeys[3],
                     child: const ContactSection(),
                   ),
-
-                  // Footer
                   const PortfolioFooter(),
                 ],
               ),

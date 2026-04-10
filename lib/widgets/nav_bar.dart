@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import 'shared_widgets.dart';
 
@@ -135,7 +136,7 @@ class _HireMeBtnState extends State<_HireMeBtn> {
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
         onTap: () {
-          // Opens WhatsApp — replace with your number
+          launchUrl(Uri.parse('https://wa.me/+923189547155'));
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),

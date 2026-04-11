@@ -76,6 +76,7 @@ final List<Project> projects = [
     screenshots: [
 
     ],
+    videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775926054/WhatsApp_Video_2026-04-05_at_4.43.36_PM_1_yo4qyx.mp4'
   ),
   const Project(
     title: 'BOSS Online Food pickup app',
@@ -91,7 +92,7 @@ final List<Project> projects = [
       'https://res.cloudinary.com/dajscyivi/image/upload/v1775924073/boss_customer_showcase_cgjkqp.jpg',
       'https://res.cloudinary.com/dajscyivi/image/upload/f_auto,q_auto/boss_vendor_showcase_v25rhi',
     ],
-    videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775926054/WhatsApp_Video_2026-04-05_at_4.43.36_PM_1_yo4qyx.mp4'
+    videoUrl: ''
   ),
   const Project(
     title: 'Scamguard',

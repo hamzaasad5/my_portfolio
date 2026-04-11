@@ -8,7 +8,7 @@ import '../constants/theme.dart';
 import '../models/data.dart';
 import 'shared_widgets.dart';
 
-// ── Smart image loader: network URL → Image.network, asset → Image.asset ──
+// ── Smart image loader ─────────────────────────────────────────────
 Widget _loadImage({
   required String path,
   BoxFit fit = BoxFit.cover,
@@ -54,6 +54,104 @@ Widget _loadImage({
   );
 }
 
+// ── Zoomable image widget ──────────────────────────────────────────
+class _ZoomableImage extends StatefulWidget {
+  final String path;
+  const _ZoomableImage({required this.path});
+
+  @override
+  State<_ZoomableImage> createState() => _ZoomableImageState();
+}
+
+class _ZoomableImageState extends State<_ZoomableImage> {
+  final TransformationController _ctrl = TransformationController();
+  TapDownDetails? _doubleTapDetails;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _handleDoubleTapDown(TapDownDetails d) {
+    _doubleTapDetails = d;
+  }
+
+  void _handleDoubleTap() {
+    if (_ctrl.value != Matrix4.identity()) {
+      // Reset zoom
+      _ctrl.value = Matrix4.identity();
+    } else {
+      // Zoom into tapped point
+      final pos = _doubleTapDetails!.localPosition;
+      _ctrl.value = Matrix4.identity()
+        ..translate(-pos.dx * 1.5, -pos.dy * 1.5)
+        ..scale(2.5);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onDoubleTapDown: _handleDoubleTapDown,
+          onDoubleTap:     _handleDoubleTap,
+          child: InteractiveViewer(
+            transformationController: _ctrl,
+            minScale:    1.0,
+            maxScale:    5.0,
+            clipBehavior: Clip.none,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: _loadImage(
+                path: widget.path,
+                fit:  BoxFit.contain,
+                fallback: Container(
+                  decoration: BoxDecoration(
+                    color:        Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.broken_image_outlined,
+                        color: Colors.white24, size: 48),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Zoom hint overlay — fades after first interaction
+        Positioned(
+          bottom: 8, right: 8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color:        Colors.black.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.pinch_outlined,
+                    color: Colors.white54, size: 12),
+                const SizedBox(width: 4),
+                Text(
+                  'Pinch or double-tap to zoom',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    color:    Colors.white54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
 
@@ -80,7 +178,7 @@ class ProjectsSection extends StatelessWidget {
               crossAxisCount:   crossCount,
               mainAxisSpacing:  20,
               crossAxisSpacing: 20,
-              childAspectRatio: w > 1000 ? 0.62 : w > 640 ? 0.65 : 0.78,
+              childAspectRatio: w > 1000 ? 0.60 : w > 640 ? 0.63 : 0.76,
             ),
             itemCount:   projects.length,
             itemBuilder: (context, i) => FadeInOnScroll(
@@ -111,6 +209,7 @@ class _ProjectCardState extends State<_ProjectCard> {
   Widget build(BuildContext context) {
     final p              = widget.project;
     final hasScreenshots = p.screenshots.isNotEmpty;
+    final hasVideo       = p.videoUrl != null && p.videoUrl!.isNotEmpty;
 
     return MouseRegion(
       cursor:  SystemMouseCursors.basic,
@@ -192,13 +291,18 @@ class _ProjectCardState extends State<_ProjectCard> {
                       p.stack.map((t) => TagChip(label: t)).toList(),
                     ),
                     const SizedBox(height: 14),
-                    Row(
+
+                    // ── Action buttons ──────────────────────────
+                    Wrap(
+                      spacing:    8,
+                      runSpacing: 8,
                       children: [
                         if (hasScreenshots)
                           _DemoButton(
                             onTap: () => _openGallery(context, p),
                           ),
-                        if (hasScreenshots) const SizedBox(width: 10),
+                        if (hasVideo)
+                          _VideoButton(url: p.videoUrl!),
                         _ProjLink(label: 'GitHub', url: p.githubUrl),
                       ],
                     ),
@@ -211,8 +315,6 @@ class _ProjectCardState extends State<_ProjectCard> {
       ),
     );
   }
-
-  // ── Thumbnail ─────────────────────────────────────────────────────
 
   Widget _buildThumb(Project p, bool hasScreenshots) {
     return ClipRRect(
@@ -235,8 +337,7 @@ class _ProjectCardState extends State<_ProjectCard> {
             Positioned(
               bottom: 0, left: 0, right: 0,
               child: Container(
-                padding:
-                const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin:  Alignment.bottomCenter,
@@ -268,6 +369,32 @@ class _ProjectCardState extends State<_ProjectCard> {
               top: 12, right: 12,
               child: _badge(p.badge),
             ),
+            // Play icon overlay if video exists
+            if (p.videoUrl != null)
+              Positioned(
+                top: 12, left: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:        Colors.red.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.play_arrow_rounded,
+                          color: Colors.white, size: 12),
+                      SizedBox(width: 3),
+                      Text('Video',
+                          style: TextStyle(
+                              color:      Colors.white,
+                              fontSize:   10,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              ),
           ],
         )
             : _emojiThumb(p),
@@ -345,11 +472,14 @@ class _ScreenshotGalleryDialogState
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 16 : w * 0.1,
-        vertical:   40,
+        horizontal: isMobile ? 8 : w * 0.08,
+        vertical:   isMobile ? 16 : 40,
       ),
       child: Container(
-        constraints: BoxConstraints(maxWidth: 860, maxHeight: h * 0.88),
+        constraints: BoxConstraints(
+          maxWidth:  860,
+          maxHeight: h * (isMobile ? 0.95 : 0.88),
+        ),
         decoration: BoxDecoration(
           color:        const Color(0xFF0D1B2E),
           borderRadius: BorderRadius.circular(20),
@@ -359,14 +489,15 @@ class _ScreenshotGalleryDialogState
           mainAxisSize: MainAxisSize.min,
           children: [
 
-            // ── Header ──────────────────────────────────────────
+            // ── Header ────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                  isMobile ? 14 : 24, 16, isMobile ? 10 : 16, 0),
               child: Row(
                 children: [
                   Text(p.emoji,
-                      style: const TextStyle(fontSize: 22)),
-                  const SizedBox(width: 10),
+                      style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,15 +505,17 @@ class _ScreenshotGalleryDialogState
                         Text(
                           p.title,
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize:   18,
+                            fontSize:   isMobile ? 15 : 18,
                             fontWeight: FontWeight.w700,
                             color:      Colors.white,
                           ),
+                          maxLines:  1,
+                          overflow:  TextOverflow.ellipsis,
                         ),
                         Text(
                           p.subtitle,
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
+                            fontSize: 11,
                             color:    AppColors.gold,
                           ),
                         ),
@@ -392,11 +525,17 @@ class _ScreenshotGalleryDialogState
                   Text(
                     '${_current + 1} / ${p.screenshots.length}',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
+                      fontSize: 12,
                       color:    Colors.white38,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
+                  // Watch video button in header (mobile)
+                  if (isMobile &&
+                      p.videoUrl != null &&
+                      p.videoUrl!.isNotEmpty)
+                    _SmallVideoButton(url: p.videoUrl!),
+                  const SizedBox(width: 6),
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     borderRadius: BorderRadius.circular(20),
@@ -407,81 +546,96 @@ class _ScreenshotGalleryDialogState
                         color: Colors.white.withOpacity(0.08),
                       ),
                       child: const Icon(Icons.close,
-                          color: Colors.white60, size: 20),
+                          color: Colors.white60, size: 18),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Divider(
                 color: Colors.white.withOpacity(0.08), height: 1),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
-            // ── Carousel ─────────────────────────────────────────
+            // ── Carousel with zoomable images ─────────────────
             Flexible(
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height:               isMobile ? 380 : 460,
-                  viewportFraction:     isMobile ? 0.88 : 0.72,
-                  enlargeCenterPage:    true,
-                  enlargeFactor:        0.18,
+                  height: isMobile
+                      ? h * 0.52
+                      : 460,
+                  viewportFraction:  isMobile ? 0.92 : 0.72,
+                  enlargeCenterPage: true,
+                  enlargeFactor:     0.15,
                   enableInfiniteScroll: p.screenshots.length > 1,
-                  onPageChanged:        (index, _) =>
+                  onPageChanged: (index, _) =>
                       setState(() => _current = index),
                 ),
-                items: p.screenshots.map((path) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: _loadImage(
-                      path: path,
-                      fit:  BoxFit.contain,
-                      fallback: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.broken_image_outlined,
-                              color: Colors.white24, size: 48),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                items: p.screenshots
+                    .map((path) => _ZoomableImage(path: path))
+                    .toList(),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
+            // ── Dot indicator ─────────────────────────────────
             if (p.screenshots.length > 1)
               AnimatedSmoothIndicator(
                 activeIndex: _current,
                 count:       p.screenshots.length,
                 effect: WormEffect(
-                  dotWidth:       8,
-                  dotHeight:      8,
+                  dotWidth:       7,
+                  dotHeight:      7,
                   activeDotColor: AppColors.gold,
-                  dotColor:       Colors.white.withOpacity(0.2),
+                  dotColor: Colors.white.withOpacity(0.2),
                 ),
               ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
 
-            // ── Footer ───────────────────────────────────────────
+            // ── Footer ────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-              child: Row(
+              padding: EdgeInsets.fromLTRB(
+                  isMobile ? 14 : 24, 0, isMobile ? 14 : 24, 16),
+              child: isMobile
+                  ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Tech chips
+                  Wrap(
+                    spacing:    6,
+                    runSpacing: 6,
+                    children: p.stack
+                        .map((t) => _chip(t))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  // GitHub button full width on mobile
+                  _GithubButton(
+                      url: p.githubUrl, fullWidth: true),
+                ],
+              )
+                  : Row(
                 children: [
                   Expanded(
                     child: Wrap(
                       spacing:    6,
                       runSpacing: 6,
-                      children: p.stack.map((t) => _chip(t)).toList(),
+                      children: p.stack
+                          .map((t) => _chip(t))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(width: 12),
+                  if (p.videoUrl != null &&
+                      p.videoUrl!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _SmallVideoButton(
+                          url: p.videoUrl!),
+                    ),
                   _GithubButton(url: p.githubUrl),
                 ],
               ),
@@ -506,6 +660,133 @@ class _ScreenshotGalleryDialogState
           fontSize:   11,
           color:      Colors.white60,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Video Button (card) ────────────────────────────────────────────────
+
+class _VideoButton extends StatefulWidget {
+  final String url;
+  const _VideoButton({required this.url});
+
+  @override
+  State<_VideoButton> createState() => _VideoButtonState();
+}
+
+class _VideoButtonState extends State<_VideoButton> {
+  bool _hovered = false;
+
+  Future<void> _launch() async {
+    final uri = Uri.parse(widget.url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor:  SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: _launch,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: _hovered
+                ? Colors.red.shade700
+                : Colors.red.shade600,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+                color: Colors.red.shade400, width: 1.5),
+            boxShadow: _hovered
+                ? [BoxShadow(
+              color:      Colors.red.withOpacity(0.3),
+              blurRadius: 10,
+              offset:     const Offset(0, 4),
+            )]
+                : [],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.play_circle_outline_rounded,
+                  color: Colors.white, size: 14),
+              const SizedBox(width: 5),
+              Text(
+                'Watch Video',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize:   13,
+                  fontWeight: FontWeight.w600,
+                  color:      Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Small Video Button (dialog) ────────────────────────────────────────
+
+class _SmallVideoButton extends StatefulWidget {
+  final String url;
+  const _SmallVideoButton({required this.url});
+
+  @override
+  State<_SmallVideoButton> createState() => _SmallVideoButtonState();
+}
+
+class _SmallVideoButtonState extends State<_SmallVideoButton> {
+  bool _hovered = false;
+
+  Future<void> _launch() async {
+    final uri = Uri.parse(widget.url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor:  SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: _launch,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color:        Colors.red.withOpacity(_hovered ? 0.9 : 0.75),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.play_arrow_rounded,
+                  color: Colors.white, size: 14),
+              const SizedBox(width: 4),
+              Text(
+                'Watch',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize:   11,
+                  fontWeight: FontWeight.w700,
+                  color:      Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -569,7 +850,8 @@ class _DemoButtonState extends State<_DemoButton> {
 
 class _GithubButton extends StatefulWidget {
   final String url;
-  const _GithubButton({required this.url});
+  final bool   fullWidth;
+  const _GithubButton({required this.url, this.fullWidth = false});
 
   @override
   State<_GithubButton> createState() => _GithubButtonState();
@@ -591,6 +873,7 @@ class _GithubButtonState extends State<_GithubButton> {
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
+          width:   widget.fullWidth ? double.infinity : null,
           padding: const EdgeInsets.symmetric(
               horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
@@ -603,7 +886,12 @@ class _GithubButtonState extends State<_GithubButton> {
             ),
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: widget.fullWidth
+                ? MainAxisSize.max
+                : MainAxisSize.min,
+            mainAxisAlignment: widget.fullWidth
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
             children: [
               Icon(Icons.code_rounded,
                   color: Colors.white.withOpacity(0.8),
@@ -659,8 +947,8 @@ class _ProjLinkState extends State<_ProjLink> {
                 ? const Color(0xFFF8F9FB)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            border:
-            Border.all(color: AppColors.border, width: 1.5),
+            border: Border.all(
+                color: AppColors.border, width: 1.5),
           ),
           child: Text(
             widget.label,

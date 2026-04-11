@@ -10,6 +10,7 @@ class Project {
   final List<String> stack;
   final String githubUrl;
   final List<String> screenshots;
+  final String? videoUrl;
 
   const Project({
     required this.title,
@@ -21,6 +22,7 @@ class Project {
     required this.stack,
     required this.githubUrl,
     this.screenshots = const [],
+    this.videoUrl,
   });
 }
 
@@ -47,12 +49,14 @@ class Experience {
   final List<String> points;
   final String emoji;
 
+
   const Experience({
     required this.date,
     required this.role,
     required this.company,
     required this.points,
     required this.emoji,
+
   });
 }
 

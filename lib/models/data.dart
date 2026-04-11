@@ -84,8 +84,8 @@ final List<Project> projects = [
     stack: ['Flutter', 'Firebase', 'FCM', 'Bloc'],
     githubUrl: 'https://github.com/hamzaasad5/flutter_boss_app',
     screenshots: [
-      'https://raw.githubusercontent.com/hamzaasad5/my_portfolio/main/assets/images/food_pickup_app/boss_customer_showcase.jpg',
-      'https://raw.githubusercontent.com/hamzaasad5/my_portfolio/main/assets/images/food_pickup_app/boss_vendor_showcase.jpg',
+      'https://res.cloudinary.com/dajscyivi/image/upload/v1775924073/boss_customer_showcase_cgjkqp.jpg',
+      'https://res.cloudinary.com/dajscyivi/image/upload/f_auto,q_auto/boss_vendor_showcase_v25rhi',
     ],
   ),
   const Project(

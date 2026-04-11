@@ -8,8 +8,8 @@ class Project {
   final String emoji;
   final String badge;
   final List<String> stack;
-  final String demoUrl;
   final String githubUrl;
+  final List<String> screenshots;
 
   const Project({
     required this.title,
@@ -19,8 +19,8 @@ class Project {
     required this.emoji,
     required this.badge,
     required this.stack,
-    required this.demoUrl,
     required this.githubUrl,
+    this.screenshots = const [],
   });
 }
 
@@ -68,21 +68,11 @@ final List<Project> projects = [
     emoji: '💰',
     badge: 'Fintech',
     stack: ['Flutter', 'Firebase', 'Node.js', 'Firestore'],
-    demoUrl: 'https://www.upwork.com/freelancers/~010c34f7c8c335785d?qpn-profile-completeness=employment',
     githubUrl: 'https://github.com/hamzaasad5/committee_pay_app',
+    screenshots: [
+
+    ],
   ),
-  // const Project(
-  //   title: 'ShopEase',
-  //   subtitle: 'E-commerce App',
-  //   description:
-  //   'A full-featured shopping app with product browsing, cart management, Firebase auth, and order tracking. Clean UI with smooth animations and offline support.',
-  //   bgColor: Color(0xFF1A472A),
-  //   emoji: '🛒',
-  //   badge: 'E-commerce',
-  //   stack: ['Flutter', 'Firebase Auth', 'Provider', 'REST API'],
-  //   demoUrl: 'https://youtube.com/your-demo',
-  //   githubUrl: 'https://github.com/yourusername/shopease',
-  // ),
   const Project(
     title: 'BOSS Online Food pickup app',
     subtitle: 'Real-time Ordering Food',
@@ -92,8 +82,10 @@ final List<Project> projects = [
     emoji: '🍔',
     badge: 'Food ordering',
     stack: ['Flutter', 'Firebase', 'FCM', 'Bloc'],
-    demoUrl: 'https://www.upwork.com/freelancers/~010c34f7c8c335785d?p=1987936262360326144',
     githubUrl: 'https://github.com/hamzaasad5/food_pickup_app',
+    screenshots: [
+      'images/food_pickup_app/boss_customer_showcase.png',
+    ],
   ),
   const Project(
     title: 'Scamguard',
@@ -104,33 +96,10 @@ final List<Project> projects = [
     emoji: '📊',
     badge: 'ScamGuard',
     stack: ['Flutter', 'firebase', 'Hive', 'provider'],
-    demoUrl: 'https://youtube.com/your-demo',
     githubUrl: 'https://github.com/hamzaasad5/scam_guard_app',
+    screenshots: [
+    ],
   ),
-  // const Project(
-  //   title: 'DocBook',
-  //   subtitle: 'Doctor Appointments',
-  //   description:
-  //   'Doctor appointment booking app with specialty search, real-time availability, booking confirmation, and appointment history. Node.js REST API backend.',
-  //   bgColor: Color(0xFF1A3A2A),
-  //   emoji: '🏥',
-  //   badge: 'Healthcare',
-  //   stack: ['Flutter', 'Firebase', 'BLoC'],
-  //   demoUrl: 'https://youtube.com/your-demo',
-  //   githubUrl: 'https://github.com/yourusername/docbook',
-  // ),
-  // const Project(
-  //   title: 'RentEasy',
-  //   subtitle: 'Property Manager',
-  //   description:
-  //   'Landlord app for managing rental properties, collecting payments digitally, issuing receipts, and tracking tenants — built for Pakistan and South Asia.',
-  //   bgColor: Color(0xFF3A1A1A),
-  //   emoji: '🏠',
-  //   badge: 'PropTech',
-  //   stack: ['Flutter', 'Firebase', 'Node.js', 'JazzCash'],
-  //   demoUrl: 'https://youtube.com/your-demo',
-  //   githubUrl: 'https://github.com/yourusername/renteasy',
-  // ),
 ];
 
 final List<Skill> skills = [

@@ -17,7 +17,8 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   animate_do: ^3.3.4
   font_awesome_flutter: ^10.7.0
-
+  carousel_slider: ^5.0.0
+  smooth_page_indicator: ^1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -26,4 +27,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/my_profile_image.jpeg
+    - assets/images/
+    - assets/images/food_pickup_app/

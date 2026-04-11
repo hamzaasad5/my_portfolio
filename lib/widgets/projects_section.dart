@@ -1,12 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import '../models/data.dart';
 import 'shared_widgets.dart';
+import 'video_player_dialog.dart';
 
 // ── Smart image loader ─────────────────────────────────────────────
 Widget _loadImage({
@@ -38,7 +38,7 @@ Widget _loadImage({
                 ? progress.cumulativeBytesLoaded /
                 progress.expectedTotalBytes!
                 : null,
-            color: AppColors.gold,
+            color:       AppColors.gold,
             strokeWidth: 2,
           ),
         ),
@@ -79,10 +79,8 @@ class _ZoomableImageState extends State<_ZoomableImage> {
 
   void _handleDoubleTap() {
     if (_ctrl.value != Matrix4.identity()) {
-      // Reset zoom
       _ctrl.value = Matrix4.identity();
     } else {
-      // Zoom into tapped point
       final pos = _doubleTapDetails!.localPosition;
       _ctrl.value = Matrix4.identity()
         ..translate(-pos.dx * 1.5, -pos.dy * 1.5)
@@ -99,8 +97,8 @@ class _ZoomableImageState extends State<_ZoomableImage> {
           onDoubleTap:     _handleDoubleTap,
           child: InteractiveViewer(
             transformationController: _ctrl,
-            minScale:    1.0,
-            maxScale:    5.0,
+            minScale:     1.0,
+            maxScale:     5.0,
             clipBehavior: Clip.none,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
@@ -121,11 +119,11 @@ class _ZoomableImageState extends State<_ZoomableImage> {
             ),
           ),
         ),
-        // Zoom hint overlay — fades after first interaction
         Positioned(
           bottom: 8, right: 8,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color:        Colors.black.withOpacity(0.5),
               borderRadius: BorderRadius.circular(8),
@@ -151,6 +149,8 @@ class _ZoomableImageState extends State<_ZoomableImage> {
     );
   }
 }
+
+// ── Projects Section ───────────────────────────────────────────────
 
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
@@ -178,7 +178,7 @@ class ProjectsSection extends StatelessWidget {
               crossAxisCount:   crossCount,
               mainAxisSpacing:  20,
               crossAxisSpacing: 20,
-              childAspectRatio: w > 1000 ? 0.60 : w > 640 ? 0.63 : 0.76,
+              childAspectRatio: w > 1000 ? 0.58 : w > 640 ? 0.61 : 0.74,
             ),
             itemCount:   projects.length,
             itemBuilder: (context, i) => FadeInOnScroll(
@@ -204,6 +204,27 @@ class _ProjectCard extends StatefulWidget {
 
 class _ProjectCardState extends State<_ProjectCard> {
   bool _hovered = false;
+
+  void _openGallery(BuildContext context, Project p) {
+    showDialog(
+      context:      context,
+      barrierColor: Colors.black87,
+      builder:      (_) => _ScreenshotGalleryDialog(project: p),
+    );
+  }
+
+  void _openVideo(BuildContext context, Project p) {
+    showDialog(
+      context:      context,
+      barrierColor: Colors.black87,
+      builder: (_) => VideoPlayerDialog(
+        videoUrl: p.videoUrl!,
+        title:    p.title,
+        subtitle: p.subtitle,
+        emoji:    p.emoji,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -287,12 +308,11 @@ class _ProjectCardState extends State<_ProjectCard> {
                     Wrap(
                       spacing:    6,
                       runSpacing: 6,
-                      children:
-                      p.stack.map((t) => TagChip(label: t)).toList(),
+                      children: p.stack
+                          .map((t) => TagChip(label: t))
+                          .toList(),
                     ),
                     const SizedBox(height: 14),
-
-                    // ── Action buttons ──────────────────────────
                     Wrap(
                       spacing:    8,
                       runSpacing: 8,
@@ -302,8 +322,11 @@ class _ProjectCardState extends State<_ProjectCard> {
                             onTap: () => _openGallery(context, p),
                           ),
                         if (hasVideo)
-                          _VideoButton(url: p.videoUrl!),
-                        _ProjLink(label: 'GitHub', url: p.githubUrl),
+                          _VideoButton(
+                            onTap: () => _openVideo(context, p),
+                          ),
+                        _ProjLink(
+                            label: 'GitHub', url: p.githubUrl),
                       ],
                     ),
                   ],
@@ -369,8 +392,7 @@ class _ProjectCardState extends State<_ProjectCard> {
               top: 12, right: 12,
               child: _badge(p.badge),
             ),
-            // Play icon overlay if video exists
-            if (p.videoUrl != null)
+            if (p.videoUrl != null && p.videoUrl!.isNotEmpty)
               Positioned(
                 top: 12, left: 12,
                 child: Container(
@@ -415,6 +437,31 @@ class _ProjectCardState extends State<_ProjectCard> {
             top: 12, right: 12,
             child: _badge(p.badge),
           ),
+          if (p.videoUrl != null && p.videoUrl!.isNotEmpty)
+            Positioned(
+              top: 12, left: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color:        Colors.red.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 12),
+                    SizedBox(width: 3),
+                    Text('Video',
+                        style: TextStyle(
+                            color:      Colors.white,
+                            fontSize:   10,
+                            fontWeight: FontWeight.w700)),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -435,14 +482,6 @@ class _ProjectCardState extends State<_ProjectCard> {
           color:      AppColors.navy,
         ),
       ),
-    );
-  }
-
-  void _openGallery(BuildContext context, Project p) {
-    showDialog(
-      context:      context,
-      barrierColor: Colors.black87,
-      builder:      (_) => _ScreenshotGalleryDialog(project: p),
     );
   }
 }
@@ -472,7 +511,7 @@ class _ScreenshotGalleryDialogState
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 8 : w * 0.08,
+        horizontal: isMobile ? 8  : w * 0.08,
         vertical:   isMobile ? 16 : 40,
       ),
       child: Container(
@@ -492,7 +531,8 @@ class _ScreenshotGalleryDialogState
             // ── Header ────────────────────────────────────────
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  isMobile ? 14 : 24, 16, isMobile ? 10 : 16, 0),
+                  isMobile ? 14 : 24, 16,
+                  isMobile ? 10 : 16, 0),
               child: Row(
                 children: [
                   Text(p.emoji,
@@ -509,8 +549,8 @@ class _ScreenshotGalleryDialogState
                             fontWeight: FontWeight.w700,
                             color:      Colors.white,
                           ),
-                          maxLines:  1,
-                          overflow:  TextOverflow.ellipsis,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           p.subtitle,
@@ -530,12 +570,25 @@ class _ScreenshotGalleryDialogState
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Watch video button in header (mobile)
-                  if (isMobile &&
-                      p.videoUrl != null &&
-                      p.videoUrl!.isNotEmpty)
-                    _SmallVideoButton(url: p.videoUrl!),
-                  const SizedBox(width: 6),
+                  if (p.videoUrl != null && p.videoUrl!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: _SmallVideoButton(
+                        onTap: () {
+                          Navigator.pop(context);
+                          showDialog(
+                            context:      context,
+                            barrierColor: Colors.black87,
+                            builder: (_) => VideoPlayerDialog(
+                              videoUrl: p.videoUrl!,
+                              title:    p.title,
+                              subtitle: p.subtitle,
+                              emoji:    p.emoji,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     borderRadius: BorderRadius.circular(20),
@@ -558,16 +611,13 @@ class _ScreenshotGalleryDialogState
                 color: Colors.white.withOpacity(0.08), height: 1),
             const SizedBox(height: 12),
 
-            // ── Carousel with zoomable images ─────────────────
             Flexible(
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: isMobile
-                      ? h * 0.52
-                      : 460,
-                  viewportFraction:  isMobile ? 0.92 : 0.72,
-                  enlargeCenterPage: true,
-                  enlargeFactor:     0.15,
+                  height: isMobile ? h * 0.52 : 460,
+                  viewportFraction:     isMobile ? 0.92 : 0.72,
+                  enlargeCenterPage:    true,
+                  enlargeFactor:        0.15,
                   enableInfiniteScroll: p.screenshots.length > 1,
                   onPageChanged: (index, _) =>
                       setState(() => _current = index),
@@ -580,7 +630,6 @@ class _ScreenshotGalleryDialogState
 
             const SizedBox(height: 12),
 
-            // ── Dot indicator ─────────────────────────────────
             if (p.screenshots.length > 1)
               AnimatedSmoothIndicator(
                 activeIndex: _current,
@@ -589,7 +638,7 @@ class _ScreenshotGalleryDialogState
                   dotWidth:       7,
                   dotHeight:      7,
                   activeDotColor: AppColors.gold,
-                  dotColor: Colors.white.withOpacity(0.2),
+                  dotColor:       Colors.white.withOpacity(0.2),
                 ),
               ),
 
@@ -598,12 +647,12 @@ class _ScreenshotGalleryDialogState
             // ── Footer ────────────────────────────────────────
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  isMobile ? 14 : 24, 0, isMobile ? 14 : 24, 16),
+                  isMobile ? 14 : 24, 0,
+                  isMobile ? 14 : 24, 16),
               child: isMobile
                   ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Tech chips
                   Wrap(
                     spacing:    6,
                     runSpacing: 6,
@@ -612,7 +661,6 @@ class _ScreenshotGalleryDialogState
                         .toList(),
                   ),
                   const SizedBox(height: 12),
-                  // GitHub button full width on mobile
                   _GithubButton(
                       url: p.githubUrl, fullWidth: true),
                 ],
@@ -629,13 +677,6 @@ class _ScreenshotGalleryDialogState
                     ),
                   ),
                   const SizedBox(width: 12),
-                  if (p.videoUrl != null &&
-                      p.videoUrl!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: _SmallVideoButton(
-                          url: p.videoUrl!),
-                    ),
                   _GithubButton(url: p.githubUrl),
                 ],
               ),
@@ -669,8 +710,8 @@ class _ScreenshotGalleryDialogState
 // ── Video Button (card) ────────────────────────────────────────────────
 
 class _VideoButton extends StatefulWidget {
-  final String url;
-  const _VideoButton({required this.url});
+  final VoidCallback onTap;
+  const _VideoButton({required this.onTap});
 
   @override
   State<_VideoButton> createState() => _VideoButtonState();
@@ -679,13 +720,6 @@ class _VideoButton extends StatefulWidget {
 class _VideoButtonState extends State<_VideoButton> {
   bool _hovered = false;
 
-  Future<void> _launch() async {
-    final uri = Uri.parse(widget.url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -693,7 +727,7 @@ class _VideoButtonState extends State<_VideoButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: _launch,
+        onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(
@@ -717,8 +751,8 @@ class _VideoButtonState extends State<_VideoButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.play_circle_outline_rounded,
-                  color: Colors.white, size: 14),
-              const SizedBox(width: 5),
+                  color: Colors.white, size: 15),
+              const SizedBox(width: 6),
               Text(
                 'Watch Video',
                 style: GoogleFonts.plusJakartaSans(
@@ -735,11 +769,11 @@ class _VideoButtonState extends State<_VideoButton> {
   }
 }
 
-// ── Small Video Button (dialog) ────────────────────────────────────────
+// ── Small Video Button (inside gallery dialog) ─────────────────────────
 
 class _SmallVideoButton extends StatefulWidget {
-  final String url;
-  const _SmallVideoButton({required this.url});
+  final VoidCallback onTap;
+  const _SmallVideoButton({required this.onTap});
 
   @override
   State<_SmallVideoButton> createState() => _SmallVideoButtonState();
@@ -748,13 +782,6 @@ class _SmallVideoButton extends StatefulWidget {
 class _SmallVideoButtonState extends State<_SmallVideoButton> {
   bool _hovered = false;
 
-  Future<void> _launch() async {
-    final uri = Uri.parse(widget.url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -762,13 +789,14 @@ class _SmallVideoButtonState extends State<_SmallVideoButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit:  (_) => setState(() => _hovered = false),
       child: GestureDetector(
-        onTap: _launch,
+        onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(
               horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color:        Colors.red.withOpacity(_hovered ? 0.9 : 0.75),
+            color: Colors.red
+                .withOpacity(_hovered ? 0.9 : 0.75),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(

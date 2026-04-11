@@ -70,11 +70,11 @@ final List<Project> projects = [
     'A digital committee (ROSCA/beesi) management app. Create committees, track member payments, assign rotation months,group chats with committee members and export records. Built for the 70% of Pakistani households that run committees.',
     bgColor: Color(0xFF0F2952),
     emoji: '💰',
-    badge: 'Fintech',
+    badge: 'Record Tracking',
     stack: ['Flutter', 'Firebase', 'Node.js', 'Firestore'],
     githubUrl: 'https://github.com/hamzaasad5/committee_pay_app',
     screenshots: [
-
+      'https://res.cloudinary.com/dajscyivi/image/upload/v1775938919/kameti_showcase_drzgwe.jpg'
     ],
     videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775926054/WhatsApp_Video_2026-04-05_at_4.43.36_PM_1_yo4qyx.mp4'
   ),
@@ -104,6 +104,7 @@ final List<Project> projects = [
     stack: ['Flutter', 'firebase', 'Hive', 'provider'],
     githubUrl: 'https://github.com/hamzaasad5/scam_guard_app',
     screenshots: [
+      'https://res.cloudinary.com/dajscyivi/image/upload/v1775938038/scamguard_showcase_iqma9r.jpg'
     ],
     videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775934792/WhatsApp_Video_2026-04-12_at_12.04.51_AM_yizzd6.mp4'
   ),

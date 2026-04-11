@@ -752,11 +752,11 @@ class _VideoButtonState extends State<_VideoButton> {
             children: [
               const Icon(Icons.play_circle_outline_rounded,
                   color: Colors.white, size: 15),
-              const SizedBox(width: 6),
+              const SizedBox(width: 2),
               Text(
                 'Watch Video',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize:   13,
+                  fontSize:   11,
                   fontWeight: FontWeight.w600,
                   color:      Colors.white,
                 ),

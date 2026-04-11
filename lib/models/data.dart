@@ -92,13 +92,12 @@ final List<Project> projects = [
       'https://res.cloudinary.com/dajscyivi/image/upload/v1775924073/boss_customer_showcase_cgjkqp.jpg',
       'https://res.cloudinary.com/dajscyivi/image/upload/f_auto,q_auto/boss_vendor_showcase_v25rhi',
     ],
-    // videoUrl: ''
+    videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775934720/WhatsApp_Video_2026-04-12_at_12.02.12_AM_crrlvs.mp4'
   ),
   const Project(
     title: 'Scamguard',
     subtitle: 'Expense Tracker',
-    description:
-    '',
+    description: 'AI-powered Android app that detects and filters spam SMS messages using on-device machine learning.',
     bgColor: Color(0xFF2D1B4E),
     emoji: '📊',
     badge: 'ScamGuard',
@@ -106,6 +105,7 @@ final List<Project> projects = [
     githubUrl: 'https://github.com/hamzaasad5/scam_guard_app',
     screenshots: [
     ],
+    videoUrl: 'https://res.cloudinary.com/dajscyivi/video/upload/v1775934792/WhatsApp_Video_2026-04-12_at_12.04.51_AM_yizzd6.mp4'
   ),
 ];
 

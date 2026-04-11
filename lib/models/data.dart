@@ -92,7 +92,7 @@ final List<Project> projects = [
       'https://res.cloudinary.com/dajscyivi/image/upload/v1775924073/boss_customer_showcase_cgjkqp.jpg',
       'https://res.cloudinary.com/dajscyivi/image/upload/f_auto,q_auto/boss_vendor_showcase_v25rhi',
     ],
-    videoUrl: ''
+    // videoUrl: ''
   ),
   const Project(
     title: 'Scamguard',

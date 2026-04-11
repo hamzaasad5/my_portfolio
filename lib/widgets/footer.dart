@@ -73,7 +73,7 @@ class PortfolioFooter extends StatelessWidget {
               children: [
                 const TextSpan(text: '© 2025 '),
                 TextSpan(
-                  text: 'Hamza Asad',
+                  text: ' Hamza Asad',
                   style: GoogleFonts.plusJakartaSans(
                     color: AppColors.gold,
                     fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class PortfolioFooter extends StatelessWidget {
                   ),
                 ),
                 const TextSpan(
-                  text: '  ·  All rights reserved  ·  Made with ❤️ in Pakistan',
+                  text: '  ·  All rights reserved  ·  Made this portfolio with Flutter',
                 ),
               ],
             ),

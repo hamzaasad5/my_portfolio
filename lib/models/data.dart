@@ -84,7 +84,8 @@ final List<Project> projects = [
     stack: ['Flutter', 'Firebase', 'FCM', 'Bloc'],
     githubUrl: 'https://github.com/hamzaasad5/flutter_boss_app',
     screenshots: [
-      'images/food_pickup_app/boss_customer_showcase.png',
+      'https://raw.githubusercontent.com/hamzaasad5/portfolio/main/assets/images/food_pickup_app/boss_customer_showcase.jpg',
+      'https://raw.githubusercontent.com/hamzaasad5/portfolio/main/assets/images/food_pickup_app/boss_vendor_showcase.jpg',
     ],
   ),
   const Project(

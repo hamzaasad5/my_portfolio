@@ -1,11 +1,58 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/theme.dart';
 import '../models/data.dart';
 import 'shared_widgets.dart';
+
+// ── Smart image loader: network URL → Image.network, asset → Image.asset ──
+Widget _loadImage({
+  required String path,
+  BoxFit fit = BoxFit.cover,
+  Widget? fallback,
+}) {
+  final isNetwork = path.startsWith('http');
+  final error = fallback ??
+      Container(
+        color: Colors.white10,
+        child: const Center(
+          child: Icon(Icons.broken_image_outlined,
+              color: Colors.white24, size: 48),
+        ),
+      );
+
+  if (isNetwork) {
+    return Image.network(
+      path,
+      fit: fit,
+      loadingBuilder: (_, child, progress) => progress == null
+          ? child
+          : Container(
+        color: Colors.white.withOpacity(0.04),
+        child: Center(
+          child: CircularProgressIndicator(
+            value: progress.expectedTotalBytes != null
+                ? progress.cumulativeBytesLoaded /
+                progress.expectedTotalBytes!
+                : null,
+            color: AppColors.gold,
+            strokeWidth: 2,
+          ),
+        ),
+      ),
+      errorBuilder: (_, __, ___) => error,
+    );
+  }
+
+  return Image.asset(
+    path,
+    fit:          fit,
+    errorBuilder: (_, __, ___) => error,
+  );
+}
 
 class ProjectsSection extends StatelessWidget {
   const ProjectsSection({super.key});
@@ -62,7 +109,7 @@ class _ProjectCardState extends State<_ProjectCard> {
 
   @override
   Widget build(BuildContext context) {
-    final p             = widget.project;
+    final p              = widget.project;
     final hasScreenshots = p.screenshots.isNotEmpty;
 
     return MouseRegion(
@@ -87,11 +134,7 @@ class _ProjectCardState extends State<_ProjectCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // ── Thumbnail ─────────────────────────────────────────
             _buildThumb(p, hasScreenshots),
-
-            // ── Body ──────────────────────────────────────────────
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
@@ -102,14 +145,15 @@ class _ProjectCardState extends State<_ProjectCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(p.title, style: AppTextStyles.projTitle),
+                          child: Text(p.title,
+                              style: AppTextStyles.projTitle),
                         ),
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color:        AppColors.navy.withOpacity(0.08),
+                            color: AppColors.navy.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -144,12 +188,12 @@ class _ProjectCardState extends State<_ProjectCard> {
                     Wrap(
                       spacing:    6,
                       runSpacing: 6,
-                      children: p.stack.map((t) => TagChip(label: t)).toList(),
+                      children:
+                      p.stack.map((t) => TagChip(label: t)).toList(),
                     ),
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        // Demo button — opens screenshot gallery
                         if (hasScreenshots)
                           _DemoButton(
                             onTap: () => _openGallery(context, p),
@@ -168,7 +212,7 @@ class _ProjectCardState extends State<_ProjectCard> {
     );
   }
 
-  // ── Thumbnail: first screenshot or emoji fallback ─────────────────
+  // ── Thumbnail ─────────────────────────────────────────────────────
 
   Widget _buildThumb(Project p, bool hasScreenshots) {
     return ClipRRect(
@@ -182,18 +226,17 @@ class _ProjectCardState extends State<_ProjectCard> {
             ? Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              p.screenshots.first,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _emojiThumb(p),
+            _loadImage(
+              path:     p.screenshots.first,
+              fit:      BoxFit.cover,
+              fallback: _emojiThumb(p),
             ),
-            // Subtle dark overlay so badge is always readable
             Container(color: Colors.black.withOpacity(0.15)),
-            // "Tap to view" hint at bottom
             Positioned(
               bottom: 0, left: 0, right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding:
+                const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin:  Alignment.bottomCenter,
@@ -221,7 +264,6 @@ class _ProjectCardState extends State<_ProjectCard> {
                 ),
               ),
             ),
-            // Badge top-right
             Positioned(
               top: 12, right: 12,
               child: _badge(p.badge),
@@ -239,7 +281,8 @@ class _ProjectCardState extends State<_ProjectCard> {
       child: Stack(
         children: [
           Center(
-            child: Text(p.emoji, style: const TextStyle(fontSize: 52)),
+            child: Text(p.emoji,
+                style: const TextStyle(fontSize: 52)),
           ),
           Positioned(
             top: 12, right: 12,
@@ -268,13 +311,11 @@ class _ProjectCardState extends State<_ProjectCard> {
     );
   }
 
-  // ── Open fullscreen gallery dialog ────────────────────────────────
-
   void _openGallery(BuildContext context, Project p) {
     showDialog(
-      context: context,
+      context:      context,
       barrierColor: Colors.black87,
-      builder: (_) => _ScreenshotGalleryDialog(project: p),
+      builder:      (_) => _ScreenshotGalleryDialog(project: p),
     );
   }
 }
@@ -290,14 +331,15 @@ class _ScreenshotGalleryDialog extends StatefulWidget {
       _ScreenshotGalleryDialogState();
 }
 
-class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
+class _ScreenshotGalleryDialogState
+    extends State<_ScreenshotGalleryDialog> {
   int _current = 0;
 
   @override
   Widget build(BuildContext context) {
-    final p  = widget.project;
-    final w  = MediaQuery.of(context).size.width;
-    final h  = MediaQuery.of(context).size.height;
+    final p        = widget.project;
+    final w        = MediaQuery.of(context).size.width;
+    final h        = MediaQuery.of(context).size.height;
     final isMobile = w < 600;
 
     return Dialog(
@@ -322,7 +364,8 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
               padding: const EdgeInsets.fromLTRB(24, 20, 16, 0),
               child: Row(
                 children: [
-                  Text(p.emoji, style: const TextStyle(fontSize: 22)),
+                  Text(p.emoji,
+                      style: const TextStyle(fontSize: 22)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -346,7 +389,6 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
                       ],
                     ),
                   ),
-                  // Counter
                   Text(
                     '${_current + 1} / ${p.screenshots.length}',
                     style: GoogleFonts.plusJakartaSans(
@@ -355,7 +397,6 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Close
                   InkWell(
                     onTap: () => Navigator.pop(context),
                     borderRadius: BorderRadius.circular(20),
@@ -374,7 +415,8 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
             ),
 
             const SizedBox(height: 16),
-            Divider(color: Colors.white.withOpacity(0.08), height: 1),
+            Divider(
+                color: Colors.white.withOpacity(0.08), height: 1),
             const SizedBox(height: 16),
 
             // ── Carousel ─────────────────────────────────────────
@@ -386,18 +428,18 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
                   enlargeCenterPage:    true,
                   enlargeFactor:        0.18,
                   enableInfiniteScroll: p.screenshots.length > 1,
-                  onPageChanged: (index, _) =>
+                  onPageChanged:        (index, _) =>
                       setState(() => _current = index),
                 ),
                 items: p.screenshots.map((path) {
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(14),
-                    child: Image.asset(
-                      path,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Container(
+                    child: _loadImage(
+                      path: path,
+                      fit:  BoxFit.contain,
+                      fallback: Container(
                         decoration: BoxDecoration(
-                          color:        Colors.white.withOpacity(0.05),
+                          color: Colors.white.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: const Center(
@@ -413,7 +455,6 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
 
             const SizedBox(height: 16),
 
-            // ── Dot Indicator ────────────────────────────────────
             if (p.screenshots.length > 1)
               AnimatedSmoothIndicator(
                 activeIndex: _current,
@@ -428,7 +469,7 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
 
             const SizedBox(height: 20),
 
-            // ── Footer: tech chips + GitHub ──────────────────────
+            // ── Footer ───────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
               child: Row(
@@ -437,9 +478,7 @@ class _ScreenshotGalleryDialogState extends State<_ScreenshotGalleryDialog> {
                     child: Wrap(
                       spacing:    6,
                       runSpacing: 6,
-                      children: p.stack
-                          .map((t) => _chip(t))
-                          .toList(),
+                      children: p.stack.map((t) => _chip(t)).toList(),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -496,9 +535,11 @@ class _DemoButtonState extends State<_DemoButton> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.navy.withOpacity(_hovered ? 0.85 : 1),
+            color: AppColors.navy
+                .withOpacity(_hovered ? 0.85 : 1),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AppColors.navy, width: 1.5),
           ),
@@ -550,19 +591,23 @@ class _GithubButtonState extends State<_GithubButton> {
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(_hovered ? 0.12 : 0.06),
+            color: Colors.white
+                .withOpacity(_hovered ? 0.12 : 0.06),
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: Colors.white.withOpacity(_hovered ? 0.3 : 0.12),
+              color: Colors.white
+                  .withOpacity(_hovered ? 0.3 : 0.12),
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.code_rounded,
-                  color: Colors.white.withOpacity(0.8), size: 16),
+                  color: Colors.white.withOpacity(0.8),
+                  size: 16),
               const SizedBox(width: 6),
               Text(
                 'GitHub',
@@ -585,7 +630,6 @@ class _GithubButtonState extends State<_GithubButton> {
 class _ProjLink extends StatefulWidget {
   final String label;
   final String url;
-
   const _ProjLink({required this.label, required this.url});
 
   @override
@@ -608,13 +652,15 @@ class _ProjLinkState extends State<_ProjLink> {
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: _hovered
                 ? const Color(0xFFF8F9FB)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.border, width: 1.5),
+            border:
+            Border.all(color: AppColors.border, width: 1.5),
           ),
           child: Text(
             widget.label,

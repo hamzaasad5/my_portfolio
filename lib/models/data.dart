@@ -82,7 +82,7 @@ final List<Project> projects = [
     emoji: '🍔',
     badge: 'Food ordering',
     stack: ['Flutter', 'Firebase', 'FCM', 'Bloc'],
-    githubUrl: 'https://github.com/hamzaasad5/food_pickup_app',
+    githubUrl: 'https://github.com/hamzaasad5/flutter_boss_app',
     screenshots: [
       'images/food_pickup_app/boss_customer_showcase.png',
     ],

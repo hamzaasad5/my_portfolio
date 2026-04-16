@@ -378,7 +378,7 @@ class _ProjectCardState extends State<_ProjectCard> {
                         color: Colors.white70, size: 13),
                     const SizedBox(width: 5),
                     Text(
-                      '${p.screenshots.length} screenshots  ·  tap Demo to view',
+                      '${p.screenshots.length} Tap Demo to view image of the project',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 11,
                         color:    Colors.white70,
